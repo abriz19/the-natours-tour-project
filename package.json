@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
     "start:pro": "NODE_ENV=production nodemon server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "import-data": "node data/import-dev-data.js --import",
+    "delete-data": "node data/import-dev-data.js --delete",
+    "make-admin": "node data/make-admin.js"
   },
   "author": "",
   "license": "ISC",

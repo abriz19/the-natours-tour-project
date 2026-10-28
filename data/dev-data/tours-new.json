@@ -19,7 +19,7 @@
     "startDate": ["2023-11-05T08:00:00.000Z", "2023-11-15T08:00:00.000Z"],
     "startLocation": {
         "type": "Point",
-        "coordinates": [38.8765, -74.5432],
+        "coordinates": [-74.5432, 38.8765],
         "address": "456 Oak St, City, Country",
         "description": "Meeting point for the cultural exploration"
     },
@@ -27,7 +27,7 @@
         {
             "_id": "617f2d3a8f8b8a001f7c51b1",
             "type": "Point",
-            "coordinates": [38.9876, -74.6543],
+            "coordinates": [-74.6543, 38.9876],
             "address": "789 Museum Ave, City, Country",
             "description": "Day 1: Visit renowned museums",
             "day": 1
@@ -35,7 +35,7 @@
         {
             "_id": "617f2d3a8f8b8a001f7c51b2",
             "type": "Point",
-            "coordinates": [38.0987, -74.7654],
+            "coordinates": [-74.7654, 38.0987],
             "address": "321 Historic St, City, Country",
             "description": "Day 2: Explore historical landmarks",
             "day": 2
@@ -49,7 +49,7 @@
   "maxGroupSize": 10,
   "slug": "thrilling-trek",
   "secretTour": false,
-  "difficulty": "difficult",
+  "difficulty": "hard",
   "ratingsAverage": 4.9,
   "ratingsQuantity": 73,
   "price": 1599,
@@ -63,7 +63,7 @@
   "startDate": ["2023-11-25T08:00:00.000Z", "2023-12-10T08:00:00.000Z"],
   "startLocation": {
       "type": "Point",
-      "coordinates": [52.3456, -97.6543],
+      "coordinates": [-97.6543, 52.3456],
       "address": "987 Pine St, City, Country",
       "description": "Gather at the starting point for the thrilling trek"
   },
@@ -71,7 +71,7 @@
       {
           "_id": "617f2d3a8f8b8a001f7c51b3",
           "type": "Point",
-          "coordinates": [52.4567, -97.7654],
+          "coordinates": [-97.7654, 52.4567],
           "address": "654 Summit Rd, City, Country",
           "description": "Day 1: Conquer towering peaks",
           "day": 1
@@ -79,7 +79,7 @@
       {
           "_id": "617f2d3a8f8b8a001f7c51b4",
           "type": "Point",
-          "coordinates": [52.5678, -97.8765],
+          "coordinates": [-97.8765, 52.5678],
           "address": "321 Canyon St, City, Country",
           "description": "Day 2: Navigate through deep canyons",
           "day": 2
@@ -93,7 +93,7 @@
   "maxGroupSize": 10,
   "slug": "thrilling-trek",
   "secretTour": false,
-  "difficulty": "difficult",
+  "difficulty": "hard",
   "ratingsAverage": 4.9,
   "ratingsQuantity": 73,
   "price": 1599,
@@ -107,15 +107,15 @@
   "startDate": ["2023-11-25T08:00:00.000Z", "2023-12-10T08:00:00.000Z"],
   "startLocation": {
       "type": "Point",
-      "coordinates": [52.3456, -97.6543],
+      "coordinates": [-97.6543, 52.3456],
       "address": "987 Pine St, City, Country",
       "description": "Gather at the starting point for the thrilling trek"
   },
   "locations": [
       {
-          "_id": "617f2d3a8f8b8a001f7c51g3",
+          "_id": "617f2d3a8f8b8a001f7c51c3",
           "type": "Point",
-          "coordinates": [52.4567, -97.7654],
+          "coordinates": [-97.7654, 52.4567],
           "address": "654 Summit Rd, City, Country",
           "description": "Day 1: Conquer towering peaks",
           "day": 1
@@ -123,7 +123,7 @@
       {
           "_id": "617f2d3a8f8b8a001f7c51b9",
           "type": "Point",
-          "coordinates": [52.5678, -97.8765],
+          "coordinates": [-97.8765, 52.5678],
           "address": "321 Canyon St, City, Country",
           "description": "Day 2: Navigate through deep canyons",
           "day": 2
