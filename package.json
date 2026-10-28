@@ -10,7 +10,8 @@
     "debug": "ndb server.js",
     "import-data": "node data/import-dev-data.js --import",
     "delete-data": "node data/import-dev-data.js --delete",
-    "make-admin": "node data/make-admin.js"
+    "make-admin": "node data/make-admin.js",
+    "seed:demo": "node data/seed-demo.js"
   },
   "author": "",
   "license": "ISC",
