@@ -1,4 +1,6 @@
 // Small formatting helpers available in every Pug template as `h`
+const fs = require('fs');
+const path = require('path');
 
 exports.capitalize = str => (str ? str.charAt(0).toUpperCase() + str.slice(1) : '');
 
@@ -17,10 +19,16 @@ exports.initial = name => (name || '?').trim().charAt(0).toUpperCase();
 
 exports.tourUrl = tour => `/tour/${tour.slug || tour._id}`;
 
-// Absolute URLs are used as-is, bare file names are looked up in public/img/tours
+// Absolute URLs are used as-is. Bare file names are looked up in public/img/tours and
+// only used if the file exists, so pages don't request images that aren't there.
+const TOUR_IMG_DIR = path.join(__dirname, '..', 'public', 'img', 'tours');
+const imageExists = new Map();
 exports.imageSrc = image => {
     if (!image) return null;
-    return /^https?:\/\//.test(image) ? image : `/img/tours/${image}`;
+    if (/^https?:\/\//.test(image)) return image;
+    const file = path.basename(image);
+    if (!imageExists.has(file)) imageExists.set(file, fs.existsSync(path.join(TOUR_IMG_DIR, file)));
+    return imageExists.get(file) ? `/img/tours/${file}` : null;
 };
 
 // A stable colour gradient per tour, shown behind (or instead of) the cover image
