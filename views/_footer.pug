@@ -1,0 +1,13 @@
+footer.footer
+  .footer__inner
+    a.logo.logo--small(href='/')
+      img.logo__img(src='/img/logo.svg' alt='' width='22' height='22')
+      span.logo__text Natours
+    nav.footer__nav(aria-label='Footer')
+      a(href='/') All tours
+      a(href='/near') Near me
+      if user
+        a(href='/me') Account
+      else
+        a(href='/signup') Create an account
+    p.footer__copy &copy; #{new Date().getFullYear()} Natours

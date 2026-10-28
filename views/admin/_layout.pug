@@ -1,0 +1,15 @@
+extends ../base
+
+block content
+  .container.admin
+    .page-head
+      div
+        h1 Admin
+        p.muted Signed in as #{user.name} (#{h.roleLabel(user.role)})
+    nav.tabs(aria-label='Admin sections')
+      a.tabs__link(href='/admin/tours' class=active === 'tours' ? 'is-active' : '') Tours
+      if user.role === 'admin'
+        a.tabs__link(href='/admin/users' class=active === 'users' ? 'is-active' : '') Users
+      a.tabs__link(href='/admin/reviews' class=active === 'reviews' ? 'is-active' : '') Reviews
+      a.tabs__link(href='/admin/stats' class=active === 'stats' ? 'is-active' : '') Statistics
+    block admin

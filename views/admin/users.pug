@@ -1,0 +1,59 @@
+extends _layout
+
+block admin
+  - const roles = ['user', 'guide', 'lead-guide', 'admin']
+  section.panel
+    details.collapsible
+      summary.collapsible__summary + Add a user
+      form.form.form-grid#user-create-form
+        .field
+          label.field__label(for='newName') Name
+          input.field__input#newName(type='text' name='name' required minlength='5')
+        .field
+          label.field__label(for='newEmail') Email
+          input.field__input#newEmail(type='email' name='email' required)
+        .field
+          label.field__label(for='newPassword') Password
+          input.field__input#newPassword(type='password' name='password' required minlength='8' autocomplete='new-password')
+        .field
+          label.field__label(for='newPasswordConfirmation') Confirm password
+          input.field__input#newPasswordConfirmation(type='password' name='passwordConfirmation' required minlength='8' autocomplete='new-password')
+        .field
+          label.field__label(for='newRole') Role
+          select.field__input#newRole(name='role')
+            each role in roles
+              option(value=role)= h.roleLabel(role)
+        .form-actions.span-2
+          button.btn(type='submit') Create user
+
+  section.panel
+    .panel__head
+      h2.panel__title #{users.length} #{users.length === 1 ? 'user' : 'users'}
+    .table-wrap
+      table.table
+        thead
+          tr
+            th(scope='col') Name
+            th(scope='col') Email
+            th(scope='col') Role
+            th(scope='col')
+              span.sr-only Actions
+        tbody
+          each u in users
+            - const isSelf = String(u._id) === String(user._id)
+            tr(data-row=u.id)
+              td
+                span.cell-user
+                  span.avatar= h.initial(u.name)
+                  span= u.name
+                  if isSelf
+                    span.badge.badge--you You
+              td= user.demo && !u.demo ? h.maskEmail(u.email) : u.email
+              td
+                label.sr-only(for=`role-${u.id}`) Role of #{u.name}
+                select.field__input.field__input--compact(id=`role-${u.id}` data-user-role=u.id disabled=isSelf)
+                  each role in roles
+                    option(value=role selected=u.role === role)= h.roleLabel(role)
+              td.actions
+                if !isSelf
+                  button.link-btn.link-btn--danger(type='button' data-user-delete=u.id data-name=u.name) Delete

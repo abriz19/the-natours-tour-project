@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const validator = require('validator');
 
 const tourSchema = mongoose.Schema({
     name: {
@@ -10,7 +9,6 @@ const tourSchema = mongoose.Schema({
         maxLength:[40, 'A tour name must have a maximum length of 40'],
         minLength:[10, 'A tour name must have a minimum length of 10'],
         trim: true
-       // validate: [validator.isAlpha, 'a tour name must be alphabetic letters']
     },
     duration:{
         type: Number,
@@ -23,7 +21,7 @@ const tourSchema = mongoose.Schema({
     secretTour:{
         type: Boolean,
         default: false
-    }, 
+    },
     difficulty: {
        type: String,
        enum: {
@@ -50,10 +48,17 @@ const tourSchema = mongoose.Schema({
         type: Number,
         validate: {
             validator: function(val){
-                return this.price>val //this validation only works when we are creating a new document. It does not work when we update a document
+                if (val === null || val === undefined) return true;
+                // on create/save `this` is the document, on updates it is the query
+                let price = this.price;
+                if (this instanceof mongoose.Query) {
+                    const update = this.getUpdate() || {};
+                    price = update.price !== undefined ? update.price : (update.$set && update.$set.price);
+                }
+                // if the price is not part of an update we can't compare, so let it through
+                return price === undefined || val < price;
             },
-            message: 'discount price should be ({VALUE}) less than the normal price'
-        
+            message: 'discount price ({VALUE}) should be less than the normal price'
         }
     },
     summary: {
@@ -68,26 +73,28 @@ const tourSchema = mongoose.Schema({
     imageCover: {
         type: String,
         required: true
-        
-    }, 
+    },
     images: [String],
     createdAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
-    startDate: [Date], 
-    startLocations: {
+    startDate: [Date],
+    startLocation: {
         //GeoJSON
         type: {
             type: String,
             default: 'Point',
             enum: ['Point']
         },
-        coordinates: [Number],
+        coordinates: {
+            type: [Number], //longitude and lattitude
+            default: undefined
+        },
         address: String,
         description: String
     },
-    locations: [ 
+    locations: [
       {
         type: {
             type: String,
@@ -99,7 +106,7 @@ const tourSchema = mongoose.Schema({
         description: String,
         day: Number
       }
-     ], 
+     ],
     guides: [
         {
             type: mongoose.Schema.ObjectId,
@@ -107,12 +114,11 @@ const tourSchema = mongoose.Schema({
         }
     ]
     },
-    { 
+    {
     toJSON: {virtuals: true},
     toObject: {virtuals: true}
 });
 
-//tourSchema.index({price: 1});
 tourSchema.index({price: 1, ratingsAverage: 1});
 tourSchema.index({slug: 1});
 tourSchema.index({startLocation: '2dsphere'});
@@ -128,53 +134,100 @@ tourSchema.virtual('reviews', {
     localField: '_id'
 });
 
-// tourSchema.pre('save', async function(next) {
-//     const guidesPromises = this.guides.map(async el => {
-//          const user = await User.findById(el);
-//          return user;
-//     });
-//      this.guides = await Promise.all(guidesPromises);
-//     next();
-// })
+tourSchema.pre('save', function(next){
+    if (this.isModified('name')) {
+        this.slug = slugify(this.name, {lower: true});
+    }
+    // a start location without coordinates isn't valid GeoJSON and would be rejected by the 2dsphere index
+    const coords = this.startLocation && this.startLocation.coordinates;
+    if (!coords || coords.length !== 2) {
+        this.startLocation = undefined;
+    }
+    next();
+})
+
+// keep the slug in sync when a tour is renamed with findByIdAndUpdate
+tourSchema.pre('findOneAndUpdate', function(next) {
+    const update = this.getUpdate();
+    if (update && update.name) {
+        update.slug = slugify(update.name, {lower: true});
+    } else if (update && update.$set && update.$set.name) {
+        update.$set.slug = slugify(update.$set.name, {lower: true});
+    }
+    next();
+});
 
 tourSchema.pre(/^find/, function(next) {
     this.populate({
         path: 'guides',
-        select: ('-passwordChangedAt -__v -_id')
+        select: ('-passwordChangedAt -__v')
     });
     next();
 })
 
-
-
-// tourSchema.pre('save', function(next){
-//     this.slug = slugify(this.name, {lower: true});
-//     next();
-// })
-
-
-
-
 tourSchema.pre(/^find/, function(next){
     this.find({secretTour: {$ne: true}});
-    this.startDate = Date.now();
     next();
 })
 
 
-// tourSchema.pre('aggregate', function(next){
-//     if(!this.pipeline()[0].$geoNear){
-//      this.pipeline().unshift({$match: {secretTour: {$ne: true}}});
-//     }
-//     // console.log(this.pipeline()[0].$geoNear);
-//     next();
-// })
+// statistics grouped by difficulty
+tourSchema.statics.getStats = function() {
+    return this.aggregate([
+        {
+            $match: {ratingsAverage: {$gte: 2}}
+        },
+        {
+            $group:   {
+                _id: {$toUpper: '$difficulty'},
+                num: {$sum: 1},
+                numRatings: {$sum: '$ratingsQuantity'},
+                avgPrice: {$avg: '$price'},
+                maxPrice: {$max: '$price'},
+                minPrice: {$min: '$price'},
+                averageRatings: {$avg: '$ratingsAverage'}
+            }
+        },
+        {
+            $sort: { avgPrice: 1 }
+        }
+    ]);
+};
 
-
-tourSchema.post(/^find/, function(docs, next){
-    console.log(`Query execution time: ${Date.now()-this.startDate}`);
-    next();
-})
+// how many tours start in each month of the given year
+tourSchema.statics.getMonthlyPlan = function(year) {
+    return this.aggregate([
+        {
+            $unwind: '$startDate'
+        },
+        {
+            $match: {
+                startDate: {
+                    $gte: new Date(`${year}-01-01`),
+                    $lte: new Date(`${year}-12-31`)
+                }
+            }
+        },
+        {
+            $group: {
+                _id: {$month: '$startDate'},
+                numOfTours: {$sum: 1},
+                tours: {$push: '$name'}
+            }
+        },
+        {
+            $addFields: {month: '$_id'}
+        },
+        {
+            $project: {
+                _id: 0
+            }
+        },
+        {
+            $sort: {month: 1}
+        }
+    ]);
+};
 
 
 const Tour = mongoose.model('Tour', tourSchema);

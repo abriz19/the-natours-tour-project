@@ -1,0 +1,42 @@
+extends base
+
+block content
+  .container.container--narrow
+    .page-head
+      .page-head__user
+        span.avatar.avatar--large= h.initial(user.name)
+        div
+          h1= user.name
+          span.badge.badge--role= h.roleLabel(user.role)
+
+    section.panel
+      h2.panel__title Profile
+      form.form#account-form
+        .field
+          label.field__label(for='name') Name
+          input.field__input#name(type='text' name='name' required minlength='5' value=user.name autocomplete='name')
+        .field
+          label.field__label(for='email') Email
+          input.field__input#email(type='email' name='email' required value=user.email autocomplete='email')
+        .form-actions
+          button.btn(type='submit') Save changes
+
+    section.panel
+      h2.panel__title Change password
+      form.form#password-form
+        .field
+          label.field__label(for='oldPassword') Current password
+          input.field__input#oldPassword(type='password' name='oldPassword' required autocomplete='current-password')
+        .field
+          label.field__label(for='newPassword') New password
+          input.field__input#newPassword(type='password' name='newPassword' required minlength='8' autocomplete='new-password')
+        .field
+          label.field__label(for='confirmPassword') Confirm new password
+          input.field__input#confirmPassword(type='password' name='confirmPassword' required minlength='8' autocomplete='new-password')
+        .form-actions
+          button.btn(type='submit') Update password
+
+    section.panel.panel--danger
+      h2.panel__title Deactivate account
+      p.muted You'll be logged out and won't be able to log in with this account again.
+      button.btn.btn--danger#deactivate-btn(type='button') Deactivate my account

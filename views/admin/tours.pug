@@ -1,0 +1,38 @@
+extends _layout
+
+block admin
+  section.panel
+    .panel__head
+      h2.panel__title #{tours.length} #{tours.length === 1 ? 'tour' : 'tours'}
+      a.btn.btn--small(href='/admin/tours/new') + New tour
+    if tours.length
+      .table-wrap
+        table.table
+          thead
+            tr
+              th(scope='col') Name
+              th(scope='col') Difficulty
+              th.num(scope='col') Days
+              th.num(scope='col') Price
+              th.num(scope='col') Rating
+              th(scope='col') Next date
+              th(scope='col')
+                span.sr-only Actions
+          tbody
+            each tour in tours
+              - const next = h.nextStartDate(tour.startDate)
+              tr(data-row=tour.id)
+                td
+                  a(href=h.tourUrl(tour))= tour.name
+                td
+                  if tour.difficulty
+                    span.badge(class=`badge--${tour.difficulty}`)= tour.difficulty
+                td.num= tour.duration
+                td.num= h.money(tour.price)
+                td.num #{tour.ratingsAverage} (#{tour.ratingsQuantity})
+                td= next ? h.formatDate(next, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'
+                td.actions
+                  a.link-btn(href=`/admin/tours/${tour.id}/edit`) Edit
+                  button.link-btn.link-btn--danger(type='button' data-tour-delete=tour.id data-name=tour.name) Delete
+    else
+      p.muted No tours yet.

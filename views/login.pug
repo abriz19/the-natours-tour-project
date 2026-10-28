@@ -1,0 +1,20 @@
+extends base
+
+block content
+  .auth
+    .auth__card
+      h1.auth__title Welcome back
+      p.muted Log in to write reviews and manage your account.
+      form.form#login-form
+        .field
+          label.field__label(for='email') Email
+          input.field__input#email(type='email' name='email' required autocomplete='email')
+        .field
+          label.field__label(for='password') Password
+          input.field__input#password(type='password' name='password' required autocomplete='current-password')
+        button.btn.btn--block(type='submit') Log in
+      .auth__links
+        a(href='/forgot-password') Forgot your password?
+        span
+          | No account yet?
+          a(href='/signup') Sign up

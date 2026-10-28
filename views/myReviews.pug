@@ -1,0 +1,19 @@
+extends base
+
+block content
+  .container.container--narrow
+    .page-head
+      div
+        h1 My reviews
+        p.muted #{reviews.length} #{reviews.length === 1 ? 'review' : 'reviews'}
+
+    if reviews.length
+      section.panel
+        ul.reviews
+          each review in reviews
+            +reviewItem(review, { tour: review.tour })
+    else
+      .empty
+        h2 You haven't reviewed any tours yet
+        p.muted Open a tour you've been on and share your experience.
+        a.btn(href='/') Browse tours

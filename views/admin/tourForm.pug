@@ -1,0 +1,83 @@
+extends _layout
+
+block admin
+  - const coords = tour && tour.startLocation && tour.startLocation.coordinates
+  - const selectedGuides = tour ? tour.guides.map(g => String(g._id)) : []
+  section.panel
+    .panel__head
+      h2.panel__title= tour ? `Edit “${tour.name}”` : 'New tour'
+      a.btn.btn--ghost.btn--small(href='/admin/tours') Back to tours
+
+    form.form.form-grid#tour-form(data-tour-id=tour ? tour.id : '')
+      .field.span-2
+        label.field__label(for='name') Name
+        input.field__input#name(type='text' name='name' required minlength='10' maxlength='40' value=tour && tour.name)
+        span.field__hint 10 to 40 characters.
+      .field
+        label.field__label(for='duration') Duration (days)
+        input.field__input#duration(type='number' name='duration' required min='1' step='1' value=tour && tour.duration)
+      .field
+        label.field__label(for='maxGroupSize') Max group size
+        input.field__input#maxGroupSize(type='number' name='maxGroupSize' min='1' step='1' value=tour && tour.maxGroupSize)
+      .field
+        label.field__label(for='difficulty') Difficulty
+        select.field__input#difficulty(name='difficulty' required)
+          each d in ['easy', 'medium', 'hard']
+            option(value=d selected=tour && tour.difficulty === d)= h.capitalize(d)
+      .field
+        label.field__label(for='price') Price ($)
+        input.field__input#price(type='number' name='price' required min='0' step='any' value=tour && tour.price)
+      .field
+        label.field__label(for='priceDiscount') Discount ($)
+        input.field__input#priceDiscount(type='number' name='priceDiscount' min='0' step='any' value=tour && tour.priceDiscount)
+        span.field__hint Optional. Must be lower than the price.
+      .field.span-2
+        label.field__label(for='summary') Summary
+        input.field__input#summary(type='text' name='summary' required value=tour && tour.summary)
+      .field.span-2
+        label.field__label(for='description') Description
+        textarea.field__input#description(name='description' rows='5')= tour ? tour.description : ''
+      .field.span-2
+        label.field__label(for='imageCover') Cover image
+        input.field__input#imageCover(type='text' name='imageCover' required value=tour && tour.imageCover placeholder='https://… or a file name in public/img/tours')
+      .field.span-2
+        label.field__label(for='images') Other images
+        textarea.field__input#images(name='images' rows='3' placeholder='One per line')= tour ? tour.images.join('\n') : ''
+      .field.span-2
+        label.field__label(for='startDates') Start dates
+        textarea.field__input#startDates(name='startDates' rows='3' placeholder='One per line, e.g. 2027-04-15')= tour ? tour.startDate.map(d => h.toInputDate(d)).join('\n') : ''
+        span.field__hint One date per line in YYYY-MM-DD format.
+
+      fieldset.fieldset.span-2
+        legend Start location
+        .form-grid
+          .field.span-2
+            label.field__label(for='slAddress') Address
+            input.field__input#slAddress(type='text' name='slAddress' value=tour && tour.startLocation && tour.startLocation.address)
+          .field.span-2
+            label.field__label(for='slDescription') Description
+            input.field__input#slDescription(type='text' name='slDescription' value=tour && tour.startLocation && tour.startLocation.description)
+          .field
+            label.field__label(for='slLat') Latitude
+            input.field__input#slLat(type='number' name='slLat' step='any' min='-90' max='90' value=coords && coords.length === 2 ? coords[1] : null)
+          .field
+            label.field__label(for='slLng') Longitude
+            input.field__input#slLng(type='number' name='slLng' step='any' min='-180' max='180' value=coords && coords.length === 2 ? coords[0] : null)
+        span.field__hint Needed for the “Near me” search. Leave everything empty for no start location.
+
+      fieldset.fieldset.span-2
+        legend Guides
+        if guides.length
+          .check-grid
+            each guide in guides
+              label.check
+                input(type='checkbox' name='guides' value=guide.id checked=selectedGuides.includes(String(guide._id)))
+                span
+                  strong= guide.name
+                  span.muted= h.roleLabel(guide.role)
+        else
+          p.muted No users with the guide or lead guide role yet. An admin can change a user's role on the Users page.
+
+      .form-actions.span-2
+        button.btn(type='submit')= tour ? 'Save changes' : 'Create tour'
+        a.btn.btn--ghost(href='/admin/tours') Cancel

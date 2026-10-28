@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     required: [true, "please enter your email"],
     lowercase: true,
-    validate: [validator.isEmail, "This email has already taken!"],
+    validate: [validator.isEmail, "please provide a valid email"],
   },
   role: {
     type: String,
@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
     select: false,
+  },
+  // public demo accounts (see data/seed-demo.js) can look around but not change data
+  demo: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -87,8 +92,8 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
       this.passwordChangedAt.getTime() / 1000,
       10
     );
-    console.log(changedPasswordAt, JWTTimeStamp);
-    return JWTTimeStamp > changedPasswordAt;
+    // true means the password was changed after the token was issued
+    return JWTTimeStamp < changedPasswordAt;
   }
 
   return false;
@@ -105,7 +110,6 @@ userSchema.methods.forgotPasswordResetToken = function () {
   // 3, save the token expiry date to the database
   this.resetTokenExpiresAt = Date.now() + 10 * 60 * 1000;
 
-  console.log(this.passwordResetToken, { resetToken });
   return resetToken;
 };
 userSchema.set("toJSON", { virtuals: false });
