@@ -2,6 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
+exports.maskEmail = require('./maskEmail');
+
 exports.capitalize = str => (str ? str.charAt(0).toUpperCase() + str.slice(1) : '');
 
 exports.formatDate = (date, options = { month: 'long', day: 'numeric', year: 'numeric' }) =>

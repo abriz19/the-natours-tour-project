@@ -273,6 +273,18 @@ img { max-width: 100%; }
 .footer__nav a { color: var(--gray-700); font-size: 0.95rem; }
 .footer__copy { margin: 0 0 0 auto; color: var(--gray-500); font-size: 0.9rem; }
 
+/* ---------- Demo banner ---------- */
+
+.demo-banner {
+  background: var(--amber-50);
+  border-bottom: 1px solid #f3dca6;
+  color: #7a4f00;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.6rem 1.25rem;
+}
+
 /* ---------- Alerts ---------- */
 
 .alerts {

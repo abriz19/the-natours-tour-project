@@ -29,12 +29,12 @@ router
 router
 .route('/')
 .get(tourController.getAllTours)
-.post(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.createTour);
+.post(authController.protect, authController.restrict('admin', 'lead-guide'), authController.blockDemo(), tourController.createTour);
 
 router
 .route('/:id')
-.patch(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.updateTour)
+.patch(authController.protect, authController.restrict('admin', 'lead-guide'), authController.blockDemo(), tourController.updateTour)
 .get(tourController.getSingleTour)
-.delete(authController.protect, authController.restrict('admin', 'lead-guide'), tourController.deleteTour);
+.delete(authController.protect, authController.restrict('admin', 'lead-guide'), authController.blockDemo(), tourController.deleteTour);
 
 module.exports = router;

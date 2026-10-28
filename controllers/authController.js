@@ -132,12 +132,26 @@ exports.restrict = (...roles) => {
     }
 }
 
+// Demo accounts are public, so they can't change data.
+// Roles passed in are still allowed (e.g. blockDemo('user') lets the demo customer write reviews).
+exports.blockDemo = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (req.user && req.user.demo && !allowedRoles.includes(req.user.role)) {
+            return next(new AppError('This is a read-only demo account, so changes are disabled.', 403));
+        }
+        next();
+    }
+}
+
 module.exports.forgotPassword = catchAsync( async(req, res, next) => {
     // 1, get user based on posted email
     const user = await User.findOne({email: req.body.email});
 
     if(!user){
         return next(new AppError('There is no user with this email', 404));
+    }
+    if (user.demo) {
+        return next(new AppError('Password reset is disabled for demo accounts.', 403));
     }
     // 2, generate the random reset token
     const resetToken = user.forgotPasswordResetToken();

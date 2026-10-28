@@ -48,7 +48,7 @@ block admin
                   span= u.name
                   if isSelf
                     span.badge.badge--you You
-              td= u.email
+              td= user.demo && !u.demo ? h.maskEmail(u.email) : u.email
               td
                 label.sr-only(for=`role-${u.id}`) Role of #{u.name}
                 select.field__input.field__input--compact(id=`role-${u.id}` data-user-role=u.id disabled=isSelf)

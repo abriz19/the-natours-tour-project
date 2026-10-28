@@ -2,6 +2,7 @@ const User = require('../model/userModel');
 const Review = require('../model/reviewModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const maskEmail = require('../utils/maskEmail');
 
 
 const filterObj =  (obj, ...updatedFileds ) => {
@@ -17,12 +18,19 @@ const filterObj =  (obj, ...updatedFileds ) => {
 
 
 
+// the demo admin login is public, so it only sees masked emails of real users
+const forViewer = (user, viewer) => {
+    const obj = user.toObject();
+    if (viewer.demo && !user.demo) obj.email = maskEmail(obj.email);
+    return obj;
+}
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
     const users = await User.find();
     res.status(200).json({
         status: 'success',
         results: users.length,
-        data: users
+        data: users.map(user => forViewer(user, req.user))
     })
 });
 
@@ -35,7 +43,7 @@ exports.getSingleUser = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         data: {
-            user
+            user: forViewer(user, req.user)
         }
     })
 });

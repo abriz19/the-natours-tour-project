@@ -12,23 +12,23 @@ router.patch('/resetPassword/:token', authController.resetPassword);
 router.post('/forgotPassword', authController.forgotPassword);
 
 router.use(authController.protect);
-router.patch('/updatePassword', authController.updatePassword);
-router.patch('/updateMe', userController.updateMe);
-router.delete('/deleteMe', userController.deleteMe);
+router.patch('/updatePassword', authController.blockDemo(), authController.updatePassword);
+router.patch('/updateMe', authController.blockDemo(), userController.updateMe);
+router.delete('/deleteMe', authController.blockDemo(), userController.deleteMe);
 router.get('/me', userController.getMe);
 
 router.use(authController.restrict('admin'));
 router
 .route('/')
 .get(userController.getAllUsers)
-.post(userController.createUser);
+.post(authController.blockDemo(), userController.createUser);
 
 
 router
 .route('/:id')
 .get(userController.getSingleUser)
-.patch(userController.updatedUser)
-.delete(userController.deleteUser);
+.patch(authController.blockDemo(), userController.updatedUser)
+.delete(authController.blockDemo(), userController.deleteUser);
 
 
 module.exports = router;

@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  // public demo accounts (see data/seed-demo.js) can look around but not change data
+  demo: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 userSchema.pre("save", function (next) {

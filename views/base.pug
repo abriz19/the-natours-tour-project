@@ -9,6 +9,12 @@ html(lang='en')
     link(rel='stylesheet' href='/css/style.css')
   body
     include _header
+    if user && user.demo
+      .demo-banner(role='note')
+        if user.role === 'user'
+          | You're using the public demo customer account. You can write and edit reviews, but profile and password changes are turned off.
+        else
+          | You're using the read-only demo admin account. You can open every page and form, but saving and deleting are turned off.
     #alerts.alerts(aria-live='polite')
     main.main
       block content
