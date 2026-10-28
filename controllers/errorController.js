@@ -6,7 +6,7 @@ const handleCastError = (err) => {
 };
 
 const handleDuplicateFields = (err) => {
-    const message = `duplicate field value: ${Object.values(err.keyValue)}, please use another value`;
+    const message = `duplicate field value: ${Object.values(err.keyValue || {}).join(', ')}, please use another value`;
     return new AppError(message, 400);
 }
 
@@ -16,78 +16,64 @@ const handleValidationError = (err) => {
     return new AppError(message, 400);
 }
 
-const handleTokenExpiredError = (err) => {
+const handleTokenExpiredError = () => {
     return new AppError('Your token has expired. please login again!', 401);
 }
 
-const handleJsonWebTokenError = (err) => {
+const handleJsonWebTokenError = () => {
     return new AppError('Invalid token! please login again.', 401);
 }
 
+// turn known library errors into friendly operational errors
+const normalizeError = (err) => {
+    if (err.name === "CastError") return handleCastError(err);
+    if (err.code === 11000) return handleDuplicateFields(err);
+    if (err.name === "ValidationError") return handleValidationError(err);
+    if (err.name === "TokenExpiredError") return handleTokenExpiredError();
+    if (err.name === "JsonWebTokenError") return handleJsonWebTokenError();
+    return err;
+};
 
-
-
-const sendErrorProd = (err, res) => {
-
+const sendApiError = (err, original, res, isDev) => {
     //operational error trusted error send it back to the client
-    if(err.isOperational){ 
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message
-    });
+    if (err.isOperational) {
+        const body = { status: err.status, message: err.message };
+        if (isDev) {
+            body.error = original;
+            body.stack = original.stack;
+        }
+        return res.status(err.statusCode).json(body);
     }
 
     //programming or other unknown error: don't leak error details
-    else{
-    console.error('Error:', err);
+    console.error('Error:', original);
     res.status(500).json({
         status: 'error',
-        message: 'Sorry something went wrong'
-    })
-  }
+        message: isDev ? original.message : 'Sorry something went wrong',
+        ...(isDev && { error: original, stack: original.stack })
+    });
 };
 
-
-
-const sendErrorDev = (err, res) => {
-    res.status(err.statusCode).json({
-        error: err,
-        status: err.status,
-        message: err.message,
-        stack: err.stack
+const renderErrorPage = (err, original, res, isDev) => {
+    if (!err.isOperational) console.error('Error:', original);
+    const statusCode = err.isOperational ? err.statusCode : 500;
+    res.status(statusCode).render('error', {
+        title: 'Something went wrong',
+        statusCode,
+        msg: err.isOperational || isDev ? err.message : 'Please try again later.'
     });
-}
-
-    
-
-
-
+};
 
 module.exports = (err, req, res, next) => {
+    err.statusCode = err.statusCode || 500;
+    err.status = err.status || 'error';
 
-err.statusCode = err.statusCode || 500;
-err.status = err.status || 'error';
+    const isDev = process.env.NODE_ENV === 'development';
+    const error = normalizeError(err);
 
-if(process.env.NODE_ENV === 'development'){
-    sendErrorDev(err, res);
-}
-else if(process.env.NODE_ENV === 'production'){
-    if (err.name === "CastError"){
-        err = handleCastError(err);
+    if (req.originalUrl.startsWith('/api')) {
+        sendApiError(error, err, res, isDev);
+    } else {
+        renderErrorPage(error, err, res, isDev);
     }
-    if(err.code === 11000){
-        //console.log(err);
-        err = handleDuplicateFields(err)
-    }
-    if(err.name === "ValidationError"){
-        err = handleValidationError(err);
-    }
-    if(err.name === "TokenExpiredError"){
-        err = handleTokenExpiredError(err);
-    }
-    if(err.name === "JsonWebTokenError"){
-        err = handleJsonWebTokenError(err);
-    }
-    sendErrorProd(err, res);
-}
-}; 
+};
