@@ -1,0 +1,33 @@
+# Render Blueprint (https://render.com/docs/blueprint-spec)
+# In Render: New > Blueprint > pick this repo, then fill in the values marked "sync: false".
+services:
+  - type: web
+    name: natours
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # proxy hops in front of the app; if the rate limiter treats all visitors as one, adjust this
+      - key: TRUST_PROXY
+        value: "3"
+      - key: DATABASE
+        sync: false
+      - key: PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: JWT_COOKIE_EXPIRES_IN
+        value: "30"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USERNAME
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false

@@ -17,6 +17,12 @@ const viewHelpers = require('./utils/viewHelpers');
 
 const app = express();
 
+// Behind a hosting proxy (e.g. Render) this tells Express how many proxy hops to trust,
+// so req.ip is the visitor's IP (for the rate limiter) and req.protocol is https.
+if (process.env.TRUST_PROXY) {
+    app.set('trust proxy', Number(process.env.TRUST_PROXY));
+}
+
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.h = viewHelpers;
