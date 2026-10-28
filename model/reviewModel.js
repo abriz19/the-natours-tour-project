@@ -4,22 +4,25 @@ const Tour = require('./tourModel');
 const reviewSchema = mongoose.Schema({
     review: {
         type: String,
-        minLength: 5,
+        minLength: [5, 'A review must be at least 5 characters long'],
+        trim: true,
         required: [true, 'review can not be empty']
     },
     rating: {
         type: Number,
         min: 1,
-        max: 5
+        max: 5,
+        required: [true, 'please give the tour a rating from 1 to 5']
     },
-    createdAt: Date,
-    user: [
-        {
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    user: {
         type: mongoose.Schema.ObjectId,
-        ref: 'User', 
+        ref: 'User',
         required: [true, 'A review must belong to a user']
-    }
-    ],
+    },
     tour: {
         type: mongoose.Schema.ObjectId,
         ref: 'Tour',
@@ -27,7 +30,7 @@ const reviewSchema = mongoose.Schema({
     }
 });
 
-
+// one review per user per tour
 reviewSchema.index({tour: 1, user: 1}, {unique: true});
 
 reviewSchema.pre(/^find/, function(next) {
@@ -53,7 +56,7 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
         }
 
     ]);
-    console.log(stats);
+
     if(stats.length > 0) {
         await Tour.findByIdAndUpdate(tourId, {
             ratingsAverage: stats[0].reviewRating,
@@ -65,23 +68,16 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
             ratingsQuantity: 0
         });
     }
- 
 };
 
-reviewSchema.pre(/^findOneAnd/, async function(next) {
-    this.r = await this.findOne(); 
-    console.log(this.r);
-    next();
- });
+// findByIdAndUpdate / findByIdAndDelete: recalculate using the document the query returned
+reviewSchema.post(/^findOneAnd/, async function(doc) {
+    if (doc) await doc.constructor.calcAverageRatings(doc.tour);
+});
 
- reviewSchema.post(/^findOneAnd/, async function() {
-    // to get access of the review model from our pre mw we add a property called r in {{this}} object
-    this.r.constructor.calcAverageRatings(this.r.tour);
- });
-
-reviewSchema.post('save', function() {
+reviewSchema.post('save', async function() {
     // Review.calcAverageRatings(this.tour); // We dont have access to the Review model so we cant use this
-    this.constructor.calcAverageRatings(this.tour);
+    await this.constructor.calcAverageRatings(this.tour);
 })
 
 
