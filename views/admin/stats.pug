@@ -1,0 +1,55 @@
+extends _layout
+
+block admin
+  section.panel
+    .panel__head
+      h2.panel__title Tours by difficulty
+    if stats.length
+      .table-wrap
+        table.table
+          thead
+            tr
+              th(scope='col') Difficulty
+              th.num(scope='col') Tours
+              th.num(scope='col') Ratings
+              th.num(scope='col') Avg rating
+              th.num(scope='col') Avg price
+              th.num(scope='col') Min price
+              th.num(scope='col') Max price
+          tbody
+            each s in stats
+              tr
+                td
+                  span.badge(class=`badge--${(s._id || '').toLowerCase()}`)= s._id || 'NOT SET'
+                td.num= s.num
+                td.num= s.numRatings
+                td.num= s.averageRatings.toFixed(1)
+                td.num= h.money(Math.round(s.avgPrice))
+                td.num= h.money(s.minPrice)
+                td.num= h.money(s.maxPrice)
+    else
+      p.muted No tours to summarise yet.
+
+  section.panel
+    .panel__head
+      h2.panel__title Tours starting in #{year}
+      form.inline-form(action='/admin/stats' method='get')
+        label.sr-only(for='year') Year
+        input.field__input.field__input--compact#year(type='number' name='year' min='1970' max='2100' value=year)
+        button.btn.btn--small(type='submit') Show
+    if plan.length
+      .table-wrap
+        table.table
+          thead
+            tr
+              th(scope='col') Month
+              th.num(scope='col') Starts
+              th(scope='col') Tours
+          tbody
+            each m in plan
+              tr
+                td= h.monthName(m.month)
+                td.num= m.numOfTours
+                td= m.tours.join(', ')
+    else
+      p.muted No tours start in #{year}.

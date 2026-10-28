@@ -1,0 +1,27 @@
+extends base
+
+block content
+  .auth
+    .auth__card
+      h1.auth__title Create your account
+      p.muted Join Natours to review the tours you've been on.
+      form.form#signup-form
+        .field
+          label.field__label(for='name') Full name
+          input.field__input#name(type='text' name='name' required minlength='5' autocomplete='name')
+          span.field__hint At least 5 characters.
+        .field
+          label.field__label(for='email') Email
+          input.field__input#email(type='email' name='email' required autocomplete='email')
+        .field
+          label.field__label(for='password') Password
+          input.field__input#password(type='password' name='password' required minlength='8' autocomplete='new-password')
+          span.field__hint At least 8 characters.
+        .field
+          label.field__label(for='passwordConfirmation') Confirm password
+          input.field__input#passwordConfirmation(type='password' name='passwordConfirmation' required minlength='8' autocomplete='new-password')
+        button.btn.btn--block(type='submit') Sign up
+      .auth__links
+        span
+          | Already have an account?
+          a(href='/login') Log in

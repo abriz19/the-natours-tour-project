@@ -1,0 +1,126 @@
+extends base
+
+block content
+  - const next = h.nextStartDate(tour.startDate)
+  - const isStaff = user && ['admin', 'lead-guide'].includes(user.role)
+
+  section.tour-hero
+    +cover(tour, 'tour-hero__cover')
+    .tour-hero__overlay
+    .container.tour-hero__content
+      if tour.difficulty
+        span.badge(class=`badge--${tour.difficulty}`)= tour.difficulty
+      h1.tour-hero__title= tour.name
+      .tour-hero__meta
+        span
+          +icon('clock')
+          | #{tour.duration} days
+        if tour.startLocation && tour.startLocation.address
+          span
+            +icon('pin')
+            = tour.startLocation.address
+        span
+          +stars(tour.ratingsAverage)
+          | #{tour.ratingsAverage} &middot; #{tour.ratingsQuantity} #{tour.ratingsQuantity === 1 ? 'review' : 'reviews'}
+
+  .container.tour-layout
+    .tour-main
+      section.panel
+        h2.panel__title About this tour
+        p.lead= tour.summary
+        if tour.description
+          each para in tour.description.split('\n').filter(p => p.trim())
+            p= para
+
+      if tour.locations && tour.locations.length
+        section.panel
+          h2.panel__title Itinerary
+          ol.timeline
+            each loc in tour.locations.slice().sort((a, b) => (a.day || 0) - (b.day || 0))
+              li.timeline__item
+                span.timeline__day Day #{loc.day || '?'}
+                .timeline__body
+                  strong= loc.description
+                  if loc.address
+                    span.muted= loc.address
+
+      section.panel#reviews
+        .panel__head
+          h2.panel__title Reviews
+          span.rating-summary
+            +stars(tour.ratingsAverage)
+            strong= tour.ratingsAverage
+            span.muted (#{tour.ratingsQuantity})
+
+        if canReview
+          form.form.review-form#review-form(data-tour-id=tour.id)
+            h3 Share your experience
+            +ratingInput('rating-new')
+            .field
+              label.field__label(for='review-text') Your review
+              textarea.field__input#review-text(name='review' rows='4' required minlength='5' placeholder='What did you like? What could be better?')
+            button.btn(type='submit') Post review
+        else if !user
+          p.notice
+            a(href=`/login?next=${encodeURIComponent(h.tourUrl(tour))}`) Log in
+            |  to write a review.
+        else if user.role !== 'user' && !isStaff
+          p.notice.muted Only travellers with a user account can review tours.
+
+        if tour.reviews && tour.reviews.length
+          ul.reviews
+            each review in tour.reviews
+              +reviewItem(review)
+        else
+          p.muted No reviews yet. Be the first to share your experience!
+
+    aside.tour-side
+      .panel.booking
+        .booking__price
+          span.price.price--big= h.money(tour.price)
+          span.muted per person
+        if tour.priceDiscount
+          p.booking__discount
+            +icon('tag')
+            | Discount available: #{h.money(tour.priceDiscount)}
+        ul.facts.facts--stacked
+          li
+            +icon('calendar')
+            span
+              span.muted Next date
+              strong= next ? h.formatDate(next) : 'To be announced'
+          li
+            +icon('trend')
+            span
+              span.muted Difficulty
+              strong= h.capitalize(tour.difficulty) || 'Not set'
+          li
+            +icon('users')
+            span
+              span.muted Group size
+              strong= tour.maxGroupSize ? `Up to ${tour.maxGroupSize} people` : 'Flexible'
+          li
+            +icon('clock')
+            span
+              span.muted Duration
+              strong #{tour.duration} days
+        if isStaff
+          a.btn.btn--ghost.btn--block(href=`/admin/tours/${tour.id}/edit`) Edit this tour
+
+      if tour.startDate && tour.startDate.length
+        .panel
+          h2.panel__title Start dates
+          ul.date-list
+            each date in tour.startDate.slice().sort((a, b) => a - b)
+              li(class=new Date(date) < new Date() ? 'is-past' : '')= h.formatDate(date)
+
+      if tour.guides && tour.guides.length
+        .panel
+          h2.panel__title Your guides
+          ul.guide-list
+            each guide in tour.guides
+              li
+                span.avatar= h.initial(guide.name)
+                span
+                  strong= guide.name
+                  span.muted= h.roleLabel(guide.role)

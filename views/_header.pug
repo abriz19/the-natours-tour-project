@@ -1,0 +1,20 @@
+header.header
+  .header__inner
+    a.logo(href='/')
+      img.logo__img(src='/img/logo.svg' alt='' width='28' height='28')
+      span.logo__text Natours
+    nav.nav(aria-label='Main')
+      a.nav__link(href='/') All tours
+      a.nav__link(href='/near') Near me
+    nav.nav.nav--user(aria-label='Account')
+      if user
+        if ['admin', 'lead-guide'].includes(user.role)
+          a.nav__link(href='/admin') Admin
+        a.nav__link(href='/my-reviews') My reviews
+        a.nav__user(href='/me' title='Your account')
+          span.avatar= h.initial(user.name)
+          span.nav__user-name= user.name.split(' ')[0]
+        button.btn.btn--ghost.btn--small#logout(type='button') Log out
+      else
+        a.nav__link(href='/login') Log in
+        a.btn.btn--small(href='/signup') Sign up

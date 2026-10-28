@@ -1,0 +1,35 @@
+extends _layout
+
+block admin
+  section.panel
+    .panel__head
+      h2.panel__title #{reviews.length} #{reviews.length === 1 ? 'review' : 'reviews'}
+    if reviews.length
+      .table-wrap
+        table.table
+          thead
+            tr
+              th(scope='col') Tour
+              th(scope='col') User
+              th(scope='col') Rating
+              th(scope='col') Review
+              th(scope='col') Date
+              th(scope='col')
+                span.sr-only Actions
+          tbody
+            each review in reviews
+              tr(data-row=review.id)
+                td
+                  if review.tour
+                    a(href=h.tourUrl(review.tour))= review.tour.name
+                  else
+                    span.muted Deleted tour
+                td= review.user ? review.user.name : 'Deleted user'
+                td
+                  +stars(review.rating)
+                td.cell-text= review.review
+                td.nowrap= h.formatDate(review.createdAt, { month: 'short', day: 'numeric', year: 'numeric' })
+                td.actions
+                  button.link-btn.link-btn--danger(type='button' data-review-delete=review.id) Delete
+    else
+      p.muted No reviews yet.

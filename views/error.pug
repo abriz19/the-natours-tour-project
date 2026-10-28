@@ -1,0 +1,11 @@
+extends base
+
+block content
+  .container.error-page
+    p.error-page__code= statusCode
+    h1 Uh oh! Something went wrong
+    p.error-page__msg= msg
+    .error-page__actions
+      if statusCode === 401
+        a.btn(href='/login') Log in
+      a.btn.btn--ghost(href='/') Back to all tours

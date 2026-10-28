@@ -1,0 +1,66 @@
+extends base
+
+block content
+  section.hero
+    .hero__inner
+      h1.hero__title Explore the world, one tour at a time
+      p.hero__text Small-group adventures led by expert guides. Find the one that fits you.
+      form.search(action='/' method='get' role='search')
+        +icon('search')
+        input.search__input(type='search' name='search' placeholder='Search tours by name' value=filters.search aria-label='Search tours by name')
+        if filters.difficulty
+          input(type='hidden' name='difficulty' value=filters.difficulty)
+        if filters.maxPrice
+          input(type='hidden' name='maxPrice' value=filters.maxPrice)
+        button.btn(type='submit') Search
+
+  .container
+    form.filters(action='/' method='get')
+      if filters.search
+        input(type='hidden' name='search' value=filters.search)
+      .field
+        label.field__label(for='difficulty') Difficulty
+        select.field__input#difficulty(name='difficulty')
+          option(value='') Any
+          each d in difficulties
+            option(value=d selected=filters.difficulty === d)= h.capitalize(d)
+      .field
+        label.field__label(for='maxPrice') Max price ($)
+        input.field__input#maxPrice(type='number' name='maxPrice' min='1' step='1' placeholder='No limit' value=filters.maxPrice)
+      .field
+        label.field__label(for='sort') Sort by
+        select.field__input#sort(name='sort')
+          each opt in sortOptions
+            option(value=opt.value selected=filters.sort === opt.value)= opt.label
+      .filters__actions
+        button.btn(type='submit') Apply
+        if hasFilters
+          a.btn.btn--ghost(href='/') Reset
+
+    p.results-count
+      strong= total
+      |  #{total === 1 ? 'tour' : 'tours'}
+      if filters.search
+        |  matching &ldquo;#{filters.search}&rdquo;
+
+    if tours.length
+      .card-grid
+        each tour in tours
+          +tourCard(tour)
+    else
+      .empty
+        h2 No tours match your search
+        p.muted Try another difficulty, a higher price limit or a different name.
+        a.btn(href='/') Show all tours
+
+    if pagination.totalPages > 1
+      nav.pagination(aria-label='Pages')
+        if pagination.prevUrl
+          a.pagination__link(href=pagination.prevUrl) &larr; Previous
+        each p in pagination.pages
+          if p.number === pagination.page
+            span.pagination__link.is-active(aria-current='page')= p.number
+          else
+            a.pagination__link(href=p.url)= p.number
+        if pagination.nextUrl
+          a.pagination__link(href=pagination.nextUrl) Next &rarr;

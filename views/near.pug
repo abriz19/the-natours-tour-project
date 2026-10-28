@@ -1,0 +1,32 @@
+extends base
+
+block content
+  .container
+    .page-head
+      div
+        h1 Tours near you
+        p.muted Find tours that start within a given distance of any point on the map.
+
+    section.panel
+      form.form.near-form#near-form
+        .field
+          label.field__label(for='lat') Latitude
+          input.field__input#lat(type='number' name='lat' step='any' min='-90' max='90' required placeholder='e.g. 34.05')
+        .field
+          label.field__label(for='lng') Longitude
+          input.field__input#lng(type='number' name='lng' step='any' min='-180' max='180' required placeholder='e.g. -118.24')
+        .field
+          label.field__label(for='distance') Distance
+          input.field__input#distance(type='number' name='distance' min='1' step='any' required value='500')
+        .field
+          label.field__label(for='unit') Unit
+          select.field__input#unit(name='unit')
+            option(value='km') Kilometers
+            option(value='mi') Miles
+        .near-form__actions
+          button.btn.btn--ghost#use-location(type='button')
+            +icon('compass')
+            | Use my location
+          button.btn(type='submit') Search
+
+    #near-results(aria-live='polite')
