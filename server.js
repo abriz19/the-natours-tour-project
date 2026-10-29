@@ -21,7 +21,8 @@ mongoose.connect(DB)
     console.log('db connected successfully');
 })
 .catch((err) => {
-    console.error('db connection error:', err.message);
+    // driver errors can contain the full connection string, so hide the credentials
+    console.error('db connection error:', err.message.replace(/(mongodb(\+srv)?:\/\/).*@/g, '$1***@'));
 });
 
 const port = process.env.PORT || 3333;
