@@ -53,7 +53,7 @@ The demo runs on Render's free plan, so the first page load after a quiet period
 
 ## Running it locally
 
-You need Node.js 18 or newer and a MongoDB database (a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster works).
+You need Node.js 24 (the current LTS release; Node 25 and newer can't load the `jsonwebtoken` library yet) and a MongoDB database (a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster works).
 
 ```bash
 git clone https://github.com/abriz19/the-natours-tour-project.git
